@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
 import 'package:phone_form_field/src/widgets/country_selector_item.dart';
 
+const _countriesWithoutFlags = {
+  IsoCode.BQ, // Bonaire
+  IsoCode.SH,
+  IsoCode.AC // Saint Helena
+  // Add other countries without flags here
+};
+
 abstract class CountrySelectorNavigator {
   final List<IsoCode>? countries;
   final List<IsoCode>? favorites;
@@ -455,7 +462,7 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
   const DraggableModalBottomSheetNavigator._({
     this.initialChildSize = 0.7,
     this.minChildSize = 0.25,
-    this.maxChildSize = 0.85,
+    this.maxChildSize = 0.9,
     this.borderRadius,
     super.countries,
     super.favorites,
@@ -545,7 +552,7 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
       children: [
         // Title
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
           child: Text(
             'Select Country',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -698,9 +705,7 @@ class _FancySearchBarState extends State<FancySearchBar> with SingleTickerProvid
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: theme.brightness == Brightness.light 
-              ? theme.colorScheme.surface.withOpacity(0.06)  // Light subtle gray for light theme
-              : theme.colorScheme.onSurface.withOpacity(0.06), // Dark subtle gray for dark theme
+          color: Color(0xEEEEEEEE), // Dark subtle gray for dark theme
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -714,11 +719,13 @@ class _FancySearchBarState extends State<FancySearchBar> with SingleTickerProvid
               child: TextField(
                 controller: widget.controller,
                 focusNode: widget.focusNode,
+                
                 autofocus: widget.autofocus,
                 style: widget.textStyle ?? theme.textTheme.bodyLarge,
                 decoration: (widget.decoration ?? const InputDecoration())
                     .copyWith(
                       border: InputBorder.none,
+                      fillColor: Color(0xEEEEEEEE),
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                     ),
