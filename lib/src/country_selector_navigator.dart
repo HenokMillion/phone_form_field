@@ -298,22 +298,99 @@ class BottomSheetNavigator extends CountrySelectorNavigator {
     super.scrollPhysics,
   });
 
+  Widget _buildSearchableCountryList({
+    required BuildContext context,
+    required ValueChanged<IsoCode> onCountrySelected,
+    required ScrollController? scrollController,
+  }) {
+    final searchController = TextEditingController();
+    final searchFocusNode = FocusNode();
+    final filteredCountries = ValueNotifier<List<IsoCode>>(countries ?? IsoCode.values);
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: FancySearchBar(
+            controller: searchController,
+            focusNode: searchFocusNode,
+            autofocus: searchAutofocus,
+            textStyle: searchBoxTextStyle,
+            decoration: searchBoxDecoration?.copyWith(
+              hintText: searchBoxDecoration?.hintText ?? 'Search countries...',
+            ),
+            iconColor: searchBoxIconColor,
+            onChanged: (value) {
+              final searchTerm = value.toLowerCase();
+              final allCountries = countries ?? IsoCode.values;
+              
+              if (searchTerm.isEmpty) {
+                filteredCountries.value = allCountries;
+              } else {
+                final countryLocalization = CountrySelectorLocalization.of(context) ?? 
+                    CountrySelectorLocalizationEn();
+                
+                filteredCountries.value = allCountries.where((isoCode) {
+                  final countryName = countryLocalization.countryName(isoCode).toLowerCase();
+                  final dialCode = countryLocalization.countryDialCode(isoCode);
+                  return countryName.contains(searchTerm) || 
+                         dialCode.contains(searchTerm) ||
+                         isoCode.name.toLowerCase().contains(searchTerm);
+                }).toList();
+              }
+            },
+          ),
+        ),
+        Expanded(
+          child: ValueListenableBuilder<List<IsoCode>>(
+            valueListenable: filteredCountries,
+            builder: (context, countries, _) {
+              if (countries.isEmpty) {
+                return Center(
+                  child: Text(
+                    noResultMessage ?? 'No countries found',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                );
+              }
+              
+              return ListView.builder(
+                controller: scrollController,
+                itemCount: countries.length,
+                itemBuilder: (context, index) {
+                  final isoCode = countries[index];
+                  return CountrySelectorItem(
+                    isoCode: isoCode,
+                    onTap: () => onCountrySelected(isoCode),
+                    flagSize: flagSize,
+                    showDialCode: showDialCode,
+                    titleStyle: titleStyle,
+                    subtitleStyle: subtitleStyle,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
-  Future<IsoCode?> show(
-    BuildContext context,
-  ) {
+  Future<IsoCode?> show(BuildContext context) {
     IsoCode? selected;
     final ctrl = showBottomSheet(
       context: context,
       builder: (_) => MediaQuery(
         data: MediaQueryData.fromView(View.of(context)),
         child: SafeArea(
-          child: _getCountrySelectorSheet(
-            inputContext: context,
+          child: _buildSearchableCountryList(
+            context: context,
             onCountrySelected: (country) {
               selected = country;
               Navigator.pop(context, country);
             },
+            scrollController: null,
           ),
         ),
       ),
@@ -416,6 +493,126 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
       ),
       useRootNavigator: useRootNavigator,
       isScrollControlled: true,
+    );
+  }
+}
+
+class FancySearchBar extends StatefulWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final bool autofocus;
+  final TextStyle? textStyle;
+  final InputDecoration? decoration;
+  final Color? iconColor;
+  final ValueChanged<String>? onChanged;
+
+  const FancySearchBar({
+    Key? key,
+    required this.controller,
+    required this.focusNode,
+    this.autofocus = false,
+    this.textStyle,
+    this.decoration,
+    this.iconColor,
+    this.onChanged,
+  }) : super(key: key);
+
+  @override
+  State<FancySearchBar> createState() => _FancySearchBarState();
+}
+
+class _FancySearchBarState extends State<FancySearchBar> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  bool _showClear = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    widget.controller.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    final hasText = widget.controller.text.isNotEmpty;
+    if (hasText != _showClear) {
+      setState(() => _showClear = hasText);
+      if (hasText) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    widget.controller.removeListener(_onTextChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Material(
+      elevation: 2,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.search,
+              color: widget.iconColor ?? theme.hintColor,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: widget.controller,
+                focusNode: widget.focusNode,
+                autofocus: widget.autofocus,
+                style: widget.textStyle ?? theme.textTheme.bodyLarge,
+                decoration: (widget.decoration ?? const InputDecoration())
+                    .copyWith(
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                    ),
+                onChanged: widget.onChanged,
+              ),
+            ),
+            FadeTransition(
+              opacity: _fadeAnimation,
+              child: _showClear
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.clear,
+                        color: widget.iconColor ?? theme.hintColor,
+                      ),
+                      onPressed: () {
+                        widget.controller.clear();
+                        widget.onChanged?.call('');
+                      },
+                    )
+                  : const SizedBox(width: 48),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
