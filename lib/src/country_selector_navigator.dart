@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
+import 'package:phone_form_field/src/widgets/country_selector_item.dart';
 
 abstract class CountrySelectorNavigator {
   final List<IsoCode>? countries;
@@ -56,21 +57,20 @@ abstract class CountrySelectorNavigator {
     return Localizations.override(
       context: inputContext,
       locale: Localizations.localeOf(inputContext),
-      child: CountrySelector.sheet(
-        countries: countries ?? IsoCode.values,
-        favoriteCountries: favorites ?? [],
-        onCountrySelected: onCountrySelected,
-        showDialCode: showDialCode,
-        noResultMessage: noResultMessage,
-        scrollController: scrollController,
-        searchAutofocus: searchAutofocus,
-        subtitleStyle: subtitleStyle,
-        titleStyle: titleStyle,
-        searchBoxDecoration: searchBoxDecoration,
-        searchBoxTextStyle: searchBoxTextStyle,
-        searchBoxIconColor: searchBoxIconColor,
-        scrollPhysics: scrollPhysics,
-        flagSize: flagSize,
+      child: ListView.builder(
+        controller: scrollController,
+        itemCount: (countries ?? IsoCode.values).length,
+        itemBuilder: (context, index) {
+          final isoCode = (countries ?? IsoCode.values)[index];
+          return CountrySelectorItem(
+            isoCode: isoCode,
+            onTap: () => onCountrySelected(isoCode),
+            flagSize: flagSize,
+            showDialCode: showDialCode,
+            titleStyle: titleStyle,
+            subtitleStyle: subtitleStyle,
+          );
+        },
       ),
     );
   }
