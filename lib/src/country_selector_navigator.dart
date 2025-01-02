@@ -441,17 +441,23 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
     
     return showModalBottomSheet<IsoCode>(
       context: context,
-       backgroundColor: Colors.transparent,
       barrierColor: Colors.black54,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      isScrollControlled: true,
+      useRootNavigator: useRootNavigator,
+
 
       builder: (_) => SizedBox(
-        height: height ?? MediaQuery.of(context).size.height - 90,
+        height: height ?? MediaQuery.of(context).size.height - 60,
         child: _getCountrySelectorSheet(
           inputContext: context,
+          
           onCountrySelected: (country) => Navigator.pop(context, country),
         ),
       ),
-      isScrollControlled: true,
     );
   }
 }
