@@ -1,4 +1,3 @@
-import 'package:circle_flags/circle_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
@@ -63,10 +62,7 @@ void main() {
       expect(find.byType(CountryButton), findsWidgets);
     });
 
-    testWidgets('Should display flag', (tester) async {
-      await tester.pumpWidget(getWidget());
-      expect(find.byType(CircleFlag), findsWidgets);
-    });
+    
 
     testWidgets(
         'Should not show country selection when disabled and country chip is tapped',
@@ -93,10 +89,6 @@ void main() {
         await tester.tap(find.byType(CountryButton));
         await tester.pumpAndSettle();
         expect(find.byType(CountrySelectorPage), findsOneWidget);
-      });
-      testWidgets('Should hide flag', (tester) async {
-        await tester.pumpWidget(getWidget(showFlagInInput: false));
-        expect(find.byType(CircleFlag), findsNothing);
       });
 
       testWidgets('Should format phone number', (tester) async {

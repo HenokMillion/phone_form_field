@@ -1,4 +1,4 @@
-import 'package:circle_flags/circle_flags.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
 
@@ -58,9 +58,13 @@ class CountryButton extends StatelessWidget {
             ],
             if (showFlag) ...[
               ExcludeSemantics(
-                child: CircleFlag(
-                  isoCode.name,
-                  size: flagSize,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: CountryFlag.fromCountryCode(
+                    isoCode.name,
+                    height: flagSize,
+                    width: flagSize,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
