@@ -291,7 +291,7 @@ class BottomSheetNavigator extends CountrySelectorNavigator {
   const BottomSheetNavigator._({
     super.countries,
     super.favorites,
-    super.addSeparator,
+    super.addSeparator = true,
     super.showDialCode,
     super.showCountryCode,
     super.sortCountries,
@@ -493,11 +493,12 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
     return showModalBottomSheet<IsoCode>(
       context: context,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.black54,
       isScrollControlled: true,
       useRootNavigator: useRootNavigator,
       builder: (context) => Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: Colors.white,
           borderRadius: effectiveBorderRadius,
           boxShadow: [
             BoxShadow(
