@@ -513,7 +513,7 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
           children: [
             // Drag handle with minimal padding
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 4), // Reduced from 8
+              margin: const EdgeInsets.symmetric(vertical: 2), // Reduced from 4
               width: 40,
               height: 4,
               decoration: BoxDecoration(
