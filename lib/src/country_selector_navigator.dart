@@ -544,11 +544,11 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
       ),
       isScrollControlled: true,
       useRootNavigator: useRootNavigator,
-      builder: (_) => SizedBox(
+      builder: (dialogContext) => SizedBox(
         height: height ?? MediaQuery.of(context).size.height - 60,
         child: _buildSearchableCountryList(
           context: context,
-          onCountrySelected: (country) => Navigator.pop(context, country),
+          onCountrySelected: (country) => Navigator.pop(dialogContext, country),
           scrollController: null,
         ),
       ),
