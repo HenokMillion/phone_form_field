@@ -10,7 +10,15 @@ const _countriesWithoutFlags = {
   // Add other countries without flags here
 };
 
+const _excludedCountries = {
+  IsoCode.AC, // Ascension Island
+};
+
 abstract class CountrySelectorNavigator {
+  List<IsoCode>? get effectiveCountries => 
+      countries?.where((c) => !_excludedCountries.contains(c)).toList() ?? 
+      IsoCode.values.where((c) => !_excludedCountries.contains(c)).toList();
+
   final List<IsoCode>? countries;
   final List<IsoCode>? favorites;
   final bool showDialCode;
