@@ -434,11 +434,99 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
     super.scrollPhysics,
   });
 
-  @override
-  Future<IsoCode?> show(
-    BuildContext context,
-  ) {
+  Widget _buildSearchableCountryList({
+    required BuildContext context,
+    required ValueChanged<IsoCode> onCountrySelected,
+    required ScrollController? scrollController,
+  }) {
+    final searchController = TextEditingController();
+    final searchFocusNode = FocusNode();
+    final filteredCountries = ValueNotifier<List<IsoCode>>(countries ?? IsoCode.values);
+
+    return Column(
+      children: [
+        // Title
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text(
+            'Select Country',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        ),
+        // Search bar
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: FancySearchBar(
+            controller: searchController,
+            focusNode: searchFocusNode,
+            autofocus: searchAutofocus,
+            textStyle: searchBoxTextStyle,
+            decoration: searchBoxDecoration?.copyWith(
+              hintText: searchBoxDecoration?.hintText ?? 'Search countries...',
+            ),
+            iconColor: searchBoxIconColor,
+            onChanged: (value) => _handleSearch(value, filteredCountries, context),
+          ),
+        ),
+        // Country list
+        Expanded(
+          child: ValueListenableBuilder<List<IsoCode>>(
+            valueListenable: filteredCountries,
+            builder: (context, countries, _) {
+              if (countries.isEmpty) {
+                return Center(
+                  child: Text(
+                    noResultMessage ?? 'No countries found',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                controller: scrollController,
+                physics: scrollPhysics ?? const BouncingScrollPhysics(),
+                itemCount: countries.length,
+                itemBuilder: (context, index) {
+                  final isoCode = countries[index];
+                  return CountrySelectorItem(
+                    isoCode: isoCode,
+                    onTap: () => onCountrySelected(isoCode),
+                    flagSize: flagSize,
+                    showDialCode: showDialCode,
+                    titleStyle: titleStyle,
+                    subtitleStyle: subtitleStyle,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handleSearch(String value, ValueNotifier<List<IsoCode>> filteredCountries, BuildContext context) {
+    final searchTerm = value.toLowerCase();
+    final allCountries = countries ?? IsoCode.values;
     
+    if (searchTerm.isEmpty) {
+      filteredCountries.value = allCountries;
+    } else {
+      final countryLocalization = CountrySelectorLocalization.of(context) ?? 
+          CountrySelectorLocalizationEn();
+      
+      filteredCountries.value = allCountries.where((isoCode) {
+        final countryName = countryLocalization.countryName(isoCode).toLowerCase();
+        final dialCode = countryLocalization.countryDialCode(isoCode);
+        return countryName.contains(searchTerm) || 
+               dialCode.contains(searchTerm) ||
+               isoCode.name.toLowerCase().contains(searchTerm);
+      }).toList();
+    }
+  }
+
+  @override
+  Future<IsoCode?> show(BuildContext context) {
     return showModalBottomSheet<IsoCode>(
       context: context,
       barrierColor: Colors.black54,
@@ -448,14 +536,12 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
       ),
       isScrollControlled: true,
       useRootNavigator: useRootNavigator,
-
-
       builder: (_) => SizedBox(
         height: height ?? MediaQuery.of(context).size.height - 60,
-        child: _getCountrySelectorSheet(
-          inputContext: context,
-          
+        child: _buildSearchableCountryList(
+          context: context,
           onCountrySelected: (country) => Navigator.pop(context, country),
+          scrollController: null,
         ),
       ),
     );
