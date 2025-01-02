@@ -460,9 +460,9 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
   final BorderRadiusGeometry? borderRadius;
 
   const DraggableModalBottomSheetNavigator._({
-    this.initialChildSize = 0.7,
-    this.minChildSize = 0.25,
-    this.maxChildSize = 0.9,
+    this.initialChildSize = 0.5,
+    this.minChildSize = 0.5,
+    this.maxChildSize = 0.8,
     this.borderRadius,
     super.countries,
     super.favorites,
@@ -553,7 +553,7 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
       children: [
         // Title
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
           child: Text(
             'Select Country',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
