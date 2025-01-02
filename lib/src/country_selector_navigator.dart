@@ -310,6 +310,13 @@ class BottomSheetNavigator extends CountrySelectorNavigator {
     return Column(
       children: [
         Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text(
+            'Select Country',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        ),
+        Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: FancySearchBar(
             controller: searchController,
@@ -565,13 +572,13 @@ class _FancySearchBarState extends State<FancySearchBar> with SingleTickerProvid
     final theme = Theme.of(context);
     
     return Material(
-      elevation: 2,
+
       borderRadius: BorderRadius.circular(12),
       child: Container(
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+          color: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
