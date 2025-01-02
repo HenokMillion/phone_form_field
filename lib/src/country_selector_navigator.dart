@@ -485,23 +485,144 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
 
     return showModalBottomSheet<IsoCode>(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: effectiveBorderRadius,
-      ),
-      builder: (_) => DraggableScrollableSheet(
-        initialChildSize: initialChildSize,
-        minChildSize: minChildSize,
-        maxChildSize: maxChildSize,
-        expand: false,
-        builder: (context, scrollController) => _getCountrySelectorSheet(
-          inputContext: context,
-          onCountrySelected: (country) => Navigator.pop(context, country),
-          scrollController: scrollController,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      useRootNavigator: useRootNavigator,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: effectiveBorderRadius,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              spreadRadius: 5,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context).dividerColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Expanded(
+              child: DraggableScrollableSheet(
+                initialChildSize: initialChildSize,
+                minChildSize: minChildSize,
+                maxChildSize: maxChildSize,
+                expand: false,
+                builder: (context, scrollController) => _buildSearchableCountryList(
+                  context: context,
+                  onCountrySelected: (country) => Navigator.pop(context, country),
+                  scrollController: scrollController,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-      useRootNavigator: useRootNavigator,
-      isScrollControlled: true,
     );
+  }
+
+  Widget _buildSearchableCountryList({
+    required BuildContext context,
+    required ValueChanged<IsoCode> onCountrySelected,
+    required ScrollController scrollController,
+  }) {
+    final searchController = TextEditingController();
+    final searchFocusNode = FocusNode();
+    final filteredCountries = ValueNotifier<List<IsoCode>>(countries ?? IsoCode.values);
+
+    return Column(
+      children: [
+        // Title
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Text(
+            'Select Country',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        // Search bar
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: FancySearchBar(
+            controller: searchController,
+            focusNode: searchFocusNode,
+            autofocus: searchAutofocus,
+            textStyle: searchBoxTextStyle,
+            decoration: searchBoxDecoration?.copyWith(
+              hintText: searchBoxDecoration?.hintText ?? 'Search countries...',
+            ),
+            iconColor: searchBoxIconColor,
+            onChanged: (value) => _handleSearch(value, filteredCountries, context),
+          ),
+        ),
+        // Country list
+        Expanded(
+          child: ValueListenableBuilder<List<IsoCode>>(
+            valueListenable: filteredCountries,
+            builder: (context, countries, _) {
+              if (countries.isEmpty) {
+                return Center(
+                  child: Text(
+                    noResultMessage ?? 'No countries found',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                controller: scrollController,
+                physics: const BouncingScrollPhysics(),
+                itemCount: countries.length,
+                itemBuilder: (context, index) {
+                  final isoCode = countries[index];
+                  return CountrySelectorItem(
+                    isoCode: isoCode,
+                    onTap: () => onCountrySelected(isoCode),
+                    flagSize: flagSize,
+                    showDialCode: showDialCode,
+                    titleStyle: titleStyle,
+                    subtitleStyle: subtitleStyle,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handleSearch(String value, ValueNotifier<List<IsoCode>> filteredCountries, BuildContext context) {
+    final searchTerm = value.toLowerCase();
+    final allCountries = countries ?? IsoCode.values;
+    
+    if (searchTerm.isEmpty) {
+      filteredCountries.value = allCountries;
+    } else {
+      final countryLocalization = CountrySelectorLocalization.of(context) ?? 
+          CountrySelectorLocalizationEn();
+      
+      filteredCountries.value = allCountries.where((isoCode) {
+        final countryName = countryLocalization.countryName(isoCode).toLowerCase();
+        final dialCode = countryLocalization.countryDialCode(isoCode);
+        return countryName.contains(searchTerm) || 
+               dialCode.contains(searchTerm) ||
+               isoCode.name.toLowerCase().contains(searchTerm);
+      }).toList();
+    }
   }
 }
 
@@ -572,13 +693,14 @@ class _FancySearchBarState extends State<FancySearchBar> with SingleTickerProvid
     final theme = Theme.of(context);
     
     return Material(
-
       borderRadius: BorderRadius.circular(12),
       child: Container(
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
+          color: theme.brightness == Brightness.light 
+              ? theme.colorScheme.surface.withOpacity(0.06)  // Light subtle gray for light theme
+              : theme.colorScheme.onSurface.withOpacity(0.06), // Dark subtle gray for dark theme
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
