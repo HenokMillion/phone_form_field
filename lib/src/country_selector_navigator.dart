@@ -403,18 +403,21 @@ class BottomSheetNavigator extends CountrySelectorNavigator {
     IsoCode? selected;
     final ctrl = showBottomSheet(
       context: context,
+      elevation: .6,
+      enableDrag: true,
+      showDragHandle: true,
       builder: (_) => MediaQuery(
         data: MediaQueryData.fromView(View.of(context)),
-        child: SafeArea(
-          child: _buildSearchableCountryList(
+        child: _buildSearchableCountryList(
             context: context,
+            
             onCountrySelected: (country) {
               selected = country;
               Navigator.pop(context, country);
             },
             scrollController: null,
           ),
-        ),
+          
       ),
     );
     return ctrl.closed.then((_) => selected);
