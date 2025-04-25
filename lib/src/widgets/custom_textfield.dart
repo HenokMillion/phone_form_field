@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-
 typedef SubmitCallback = void Function(String value);
 
 class CustomTextFormField extends StatelessWidget {
@@ -59,8 +58,8 @@ class CustomTextFormField extends StatelessWidget {
   final TextEditingController? controller;
   final SubmitCallback? onSubmitted;
   final String? Function(String?)? validator;
-  TextInputAction? textInputAction;
-  void Function(String)? onSaved, onChange;
+  final TextInputAction? textInputAction;
+  final void Function(String)? onSaved, onChange;
   final String? initialValue;
   final Widget? prefix;
   final Widget? prefixIcon;
@@ -77,10 +76,9 @@ class CustomTextFormField extends StatelessWidget {
   final InputDecoration? decoration;
   final Widget? prefixWidget;
   final TextCapitalization textCapitalization;
-
-  TextInputType? textInputType;
-  bool isPassword = false;
-  OutlineInputBorder formOutlineBorder = const OutlineInputBorder(
+  final TextInputType? textInputType;
+  final bool isPassword;
+  final OutlineInputBorder formOutlineBorder = const OutlineInputBorder(
     borderSide: BorderSide(
       width: 0,
       color: Colors.transparent,
@@ -117,16 +115,18 @@ class CustomTextFormField extends StatelessWidget {
               }
               return validator?.call(value);
             },
-      onSaved: (val) {
-        onSaved!(val!);
-      },
+      onSaved: onSaved != null
+          ? (val) {
+              onSaved!(val!);
+            }
+          : null,
       onChanged: onChange,
       maxLength: maxLength,
       onFieldSubmitted: onSubmitted,
       focusNode: focusNode,
       controller: controller,
       textInputAction: textInputAction,
-        autovalidateMode: AutovalidateMode.onUnfocus,
+      autovalidateMode: AutovalidateMode.onUnfocus,
       // autovalidateMode: autoValidateMode,
       decoration: decoration ??
           InputDecoration(
@@ -191,9 +191,9 @@ class CustomTextFormField extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(borderRadius ?? 50),
             ),
-            fillColor: Color(0xFFF8F8F8),
+            fillColor: const Color(0xFFF8F8F8),
             contentPadding:
-                 EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+                EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
           ),
     );
   }
