@@ -2,10 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
 import 'package:phone_form_field/src/widgets/country_selector_item.dart';
-import 'package:phone_form_field/src/constants.dart';
 import 'package:phone_form_field/src/custom_iso_code.dart';
-import 'package:phone_numbers_parser/phone_numbers_parser.dart' as original
-    show IsoCode;
 
 // Define the countries to exclude right here to ensure they're always filtered out
 const _excludedCountries = {
@@ -35,11 +32,6 @@ abstract class CountrySelectorNavigator {
   CustomIsoCode? _toCustomIsoCode(IsoCode code) {
     if (_excludedCountries.contains(code)) return null;
     return CustomIsoCode.fromOriginal(code);
-  }
-
-  /// Convert from CustomIsoCode to original IsoCode
-  IsoCode _toOriginalIsoCode(CustomIsoCode code) {
-    return code.toOriginal();
   }
 
   /// Get a list of CustomIsoCode from the filtered countries

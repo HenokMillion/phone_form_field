@@ -56,11 +56,11 @@ class CustomIsoCodeExample extends StatelessWidget {
               onChanged: (CustomIsoCode? newValue) {
                 if (newValue != null) {
                   // Use the custom code
-                  print('Selected country: ${newValue.name}');
+                  // print('Selected country: ${newValue.name}');
 
                   // Convert to original IsoCode if needed
-                  final originalCode = newValue.toOriginal();
-                  print('Original IsoCode: ${originalCode.name}');
+                  newValue.toOriginal();
+                  // print('Original IsoCode: ${originalCode.name}');
                 }
               },
               items: CustomIsoCode.values
