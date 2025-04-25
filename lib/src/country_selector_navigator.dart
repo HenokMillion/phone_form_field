@@ -11,9 +11,14 @@ const _excludedCountries = {
 };
 
 abstract class CountrySelectorNavigator {
-  List<IsoCode>? get effectiveCountries =>
-      countries?.where((c) => !_excludedCountries.contains(c)).toList() ??
-      IsoCode.values.where((c) => !_excludedCountries.contains(c)).toList();
+  List<IsoCode>? get effectiveCountries {
+    final result = countries
+            ?.where((c) => !_excludedCountries.contains(c))
+            .toList() ??
+        IsoCode.values.where((c) => !_excludedCountries.contains(c)).toList();
+    // Double-check that Taiwan is excluded
+    return result..removeWhere((c) => c == IsoCode.TW);
+  }
 
   final List<IsoCode>? countries;
   final List<IsoCode>? favorites;
@@ -264,7 +269,7 @@ class PageNavigator extends CountrySelectorNavigator {
         child: CountrySelector.page(
           onCountrySelected: onCountrySelected,
           scrollController: scrollController,
-          countries: countries ?? IsoCode.values,
+          countries: effectiveCountries ?? IsoCode.values,
           favoriteCountries: favorites ?? [],
           noResultMessage: noResultMessage,
           searchAutofocus: searchAutofocus,
