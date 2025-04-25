@@ -27,6 +27,15 @@ class PhoneController extends ChangeNotifier {
         );
 
   changeCountry(IsoCode isoCode) {
+    // Skip if the country is Taiwan (TW) or other excluded countries
+    if (isoCode == IsoCode.TW ||
+        isoCode == IsoCode.HK ||
+        isoCode == IsoCode.MO ||
+        isoCode == IsoCode.AC) {
+      // Return without changing to excluded country
+      return;
+    }
+
     _value = PhoneNumber.parse(
       _value.nsn,
       destinationCountry: isoCode,
