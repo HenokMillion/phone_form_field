@@ -2,22 +2,54 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
 import 'package:phone_form_field/src/widgets/country_selector_item.dart';
+import 'package:phone_form_field/src/constants.dart';
+import 'package:phone_form_field/src/custom_iso_code.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart' as original
+    show IsoCode;
 
+// Define the countries to exclude right here to ensure they're always filtered out
 const _excludedCountries = {
   IsoCode.AC, // Ascension Island
   IsoCode.HK, // Hong Kong
-  IsoCode.TW, // Taiwan
+  IsoCode.TW, // Taiwan - explicitly excluded
   IsoCode.MO, // Macao
 };
 
 abstract class CountrySelectorNavigator {
+  /// Returns the list of countries with excluded countries filtered out
   List<IsoCode>? get effectiveCountries {
-    final result = countries
-            ?.where((c) => !_excludedCountries.contains(c))
+    // Start with countries provided or all IsoCode values
+    final allCountries = countries ?? IsoCode.values.toList();
+
+    // Filter out the excluded countries
+    final filteredList =
+        allCountries.where((c) => !_excludedCountries.contains(c)).toList();
+
+    // Extra check to always ensure Taiwan is not included
+    filteredList.removeWhere((c) => c == IsoCode.TW);
+
+    return filteredList;
+  }
+
+  /// Convert from original IsoCode to CustomIsoCode (returns null for excluded countries)
+  CustomIsoCode? _toCustomIsoCode(IsoCode code) {
+    if (_excludedCountries.contains(code)) return null;
+    return CustomIsoCode.fromOriginal(code);
+  }
+
+  /// Convert from CustomIsoCode to original IsoCode
+  IsoCode _toOriginalIsoCode(CustomIsoCode code) {
+    return code.toOriginal();
+  }
+
+  /// Get a list of CustomIsoCode from the filtered countries
+  List<CustomIsoCode> get effectiveCustomCountries {
+    return effectiveCountries
+            ?.map((c) => _toCustomIsoCode(c))
+            .where((c) => c != null)
+            .cast<CustomIsoCode>()
             .toList() ??
-        IsoCode.values.where((c) => !_excludedCountries.contains(c)).toList();
-    // Double-check that Taiwan is excluded
-    return result..removeWhere((c) => c == IsoCode.TW);
+        [];
   }
 
   final List<IsoCode>? countries;
@@ -58,7 +90,15 @@ abstract class CountrySelectorNavigator {
   @Deprecated('Use [show] instead')
   Future<IsoCode?> navigate(BuildContext context) => show(context);
 
+  /// Show the country selector and return the selected IsoCode
   Future<IsoCode?> show(BuildContext context);
+
+  /// Show the country selector and return the selected CustomIsoCode
+  Future<CustomIsoCode?> showCustom(BuildContext context) async {
+    final result = await show(context);
+    if (result == null) return null;
+    return _toCustomIsoCode(result);
+  }
 
   Localizations _getCountrySelectorSheet({
     /// the context of the input

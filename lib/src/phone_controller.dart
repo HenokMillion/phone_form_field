@@ -26,12 +26,10 @@ class PhoneController extends ChangeNotifier {
           text: initialValue.formatNsn(),
         );
 
+  /// Change country using original IsoCode
   changeCountry(IsoCode isoCode) {
-    // Skip if the country is Taiwan (TW) or other excluded countries
-    if (isoCode == IsoCode.TW ||
-        isoCode == IsoCode.HK ||
-        isoCode == IsoCode.MO ||
-        isoCode == IsoCode.AC) {
+    // Skip if the country is excluded
+    if (isExcludedCountry(isoCode)) {
       // Return without changing to excluded country
       return;
     }
@@ -42,6 +40,13 @@ class PhoneController extends ChangeNotifier {
     );
     _changeFormattedNationalNumber(_value.formatNsn());
     notifyListeners();
+  }
+
+  /// Change country using CustomIsoCode
+  changeCustomCountry(CustomIsoCode customIsoCode) {
+    // Convert CustomIsoCode to IsoCode
+    final isoCode = customIsoCode.toOriginal();
+    changeCountry(isoCode);
   }
 
   changeNationalNumber(String? text) {

@@ -10,3 +10,6 @@ export 'src/localization/localization.dart';
 
 export 'package:phone_numbers_parser/phone_numbers_parser.dart'
     show PhoneNumber, PhoneNumberType, IsoCode;
+
+// Also export our custom IsoCode that excludes unwanted countries
+export 'src/custom_iso_code.dart';
