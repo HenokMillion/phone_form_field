@@ -1,3 +1,8 @@
+## [10.0.7]
+
+- Excluded Hong Kong, Taiwan, and Macao from country selection list
+- Removed unused _countriesWithoutFlags declaration
+
 ## [10.0.3]
 
 - added Catalan localization

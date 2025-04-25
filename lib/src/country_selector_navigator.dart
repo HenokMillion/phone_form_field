@@ -3,20 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
 import 'package:phone_form_field/src/widgets/country_selector_item.dart';
 
-const _countriesWithoutFlags = {
-  IsoCode.BQ, // Bonaire
-  IsoCode.SH,
-  IsoCode.AC // Saint Helena
-  // Add other countries without flags here
-};
-
 const _excludedCountries = {
   IsoCode.AC, // Ascension Island
+  IsoCode.HK, // Hong Kong
+  IsoCode.TW, // Taiwan
+  IsoCode.MO, // Macao
 };
 
 abstract class CountrySelectorNavigator {
-  List<IsoCode>? get effectiveCountries => 
-      countries?.where((c) => !_excludedCountries.contains(c)).toList() ?? 
+  List<IsoCode>? get effectiveCountries =>
+      countries?.where((c) => !_excludedCountries.contains(c)).toList() ??
       IsoCode.values.where((c) => !_excludedCountries.contains(c)).toList();
 
   final List<IsoCode>? countries;
@@ -320,7 +316,8 @@ class BottomSheetNavigator extends CountrySelectorNavigator {
   }) {
     final searchController = TextEditingController();
     final searchFocusNode = FocusNode();
-    final filteredCountries = ValueNotifier<List<IsoCode>>(countries ?? IsoCode.values);
+    final filteredCountries =
+        ValueNotifier<List<IsoCode>>(countries ?? IsoCode.values);
 
     return Column(
       children: [
@@ -345,19 +342,21 @@ class BottomSheetNavigator extends CountrySelectorNavigator {
             onChanged: (value) {
               final searchTerm = value.toLowerCase();
               final allCountries = countries ?? IsoCode.values;
-              
+
               if (searchTerm.isEmpty) {
                 filteredCountries.value = allCountries;
               } else {
-                final countryLocalization = CountrySelectorLocalization.of(context) ?? 
-                    CountrySelectorLocalizationEn();
-                
+                final countryLocalization =
+                    CountrySelectorLocalization.of(context) ??
+                        CountrySelectorLocalizationEn();
+
                 filteredCountries.value = allCountries.where((isoCode) {
-                  final countryName = countryLocalization.countryName(isoCode).toLowerCase();
+                  final countryName =
+                      countryLocalization.countryName(isoCode).toLowerCase();
                   final dialCode = countryLocalization.countryDialCode(isoCode);
-                  return countryName.contains(searchTerm) || 
-                         dialCode.contains(searchTerm) ||
-                         isoCode.name.toLowerCase().contains(searchTerm);
+                  return countryName.contains(searchTerm) ||
+                      dialCode.contains(searchTerm) ||
+                      isoCode.name.toLowerCase().contains(searchTerm);
                 }).toList();
               }
             },
@@ -375,7 +374,7 @@ class BottomSheetNavigator extends CountrySelectorNavigator {
                   ),
                 );
               }
-              
+
               return ListView.builder(
                 controller: scrollController,
                 itemCount: countries.length,
@@ -409,15 +408,13 @@ class BottomSheetNavigator extends CountrySelectorNavigator {
       builder: (_) => MediaQuery(
         data: MediaQueryData.fromView(View.of(context)),
         child: _buildSearchableCountryList(
-            context: context,
-            
-            onCountrySelected: (country) {
-              selected = country;
-              Navigator.pop(context, country);
-            },
-            scrollController: null,
-          ),
-          
+          context: context,
+          onCountrySelected: (country) {
+            selected = country;
+            Navigator.pop(context, country);
+          },
+          scrollController: null,
+        ),
       ),
     );
     return ctrl.closed.then((_) => selected);
@@ -452,7 +449,8 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
   }) {
     final searchController = TextEditingController();
     final searchFocusNode = FocusNode();
-    final filteredCountries = ValueNotifier<List<IsoCode>>(countries ?? IsoCode.values);
+    final filteredCountries =
+        ValueNotifier<List<IsoCode>>(countries ?? IsoCode.values);
 
     return Column(
       children: [
@@ -476,7 +474,8 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
               hintText: searchBoxDecoration?.hintText ?? 'Search countries...',
             ),
             iconColor: searchBoxIconColor,
-            onChanged: (value) => _handleSearch(value, filteredCountries, context),
+            onChanged: (value) =>
+                _handleSearch(value, filteredCountries, context),
           ),
         ),
         // Country list
@@ -516,22 +515,24 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
     );
   }
 
-  void _handleSearch(String value, ValueNotifier<List<IsoCode>> filteredCountries, BuildContext context) {
+  void _handleSearch(String value,
+      ValueNotifier<List<IsoCode>> filteredCountries, BuildContext context) {
     final searchTerm = value.toLowerCase();
     final allCountries = countries ?? IsoCode.values;
-    
+
     if (searchTerm.isEmpty) {
       filteredCountries.value = allCountries;
     } else {
-      final countryLocalization = CountrySelectorLocalization.of(context) ?? 
+      final countryLocalization = CountrySelectorLocalization.of(context) ??
           CountrySelectorLocalizationEn();
-      
+
       filteredCountries.value = allCountries.where((isoCode) {
-        final countryName = countryLocalization.countryName(isoCode).toLowerCase();
+        final countryName =
+            countryLocalization.countryName(isoCode).toLowerCase();
         final dialCode = countryLocalization.countryDialCode(isoCode);
-        return countryName.contains(searchTerm) || 
-               dialCode.contains(searchTerm) ||
-               isoCode.name.toLowerCase().contains(searchTerm);
+        return countryName.contains(searchTerm) ||
+            dialCode.contains(searchTerm) ||
+            isoCode.name.toLowerCase().contains(searchTerm);
       }).toList();
     }
   }
@@ -633,9 +634,11 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
                 minChildSize: minChildSize,
                 maxChildSize: maxChildSize,
                 expand: false,
-                builder: (context, scrollController) => _buildSearchableCountryList(
+                builder: (context, scrollController) =>
+                    _buildSearchableCountryList(
                   context: context,
-                  onCountrySelected: (country) => Navigator.pop(context, country),
+                  onCountrySelected: (country) =>
+                      Navigator.pop(context, country),
                   scrollController: scrollController,
                 ),
               ),
@@ -653,7 +656,8 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
   }) {
     final searchController = TextEditingController();
     final searchFocusNode = FocusNode();
-    final filteredCountries = ValueNotifier<List<IsoCode>>(countries ?? IsoCode.values);
+    final filteredCountries =
+        ValueNotifier<List<IsoCode>>(countries ?? IsoCode.values);
 
     return Column(
       children: [
@@ -663,8 +667,8 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
           child: Text(
             'Select Country',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
         ),
         // Search bar
@@ -679,7 +683,8 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
               hintText: searchBoxDecoration?.hintText ?? 'Search countries...',
             ),
             iconColor: searchBoxIconColor,
-            onChanged: (value) => _handleSearch(value, filteredCountries, context),
+            onChanged: (value) =>
+                _handleSearch(value, filteredCountries, context),
           ),
         ),
         // Country list
@@ -719,22 +724,24 @@ class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
     );
   }
 
-  void _handleSearch(String value, ValueNotifier<List<IsoCode>> filteredCountries, BuildContext context) {
+  void _handleSearch(String value,
+      ValueNotifier<List<IsoCode>> filteredCountries, BuildContext context) {
     final searchTerm = value.toLowerCase();
     final allCountries = countries ?? IsoCode.values;
-    
+
     if (searchTerm.isEmpty) {
       filteredCountries.value = allCountries;
     } else {
-      final countryLocalization = CountrySelectorLocalization.of(context) ?? 
+      final countryLocalization = CountrySelectorLocalization.of(context) ??
           CountrySelectorLocalizationEn();
-      
+
       filteredCountries.value = allCountries.where((isoCode) {
-        final countryName = countryLocalization.countryName(isoCode).toLowerCase();
+        final countryName =
+            countryLocalization.countryName(isoCode).toLowerCase();
         final dialCode = countryLocalization.countryDialCode(isoCode);
-        return countryName.contains(searchTerm) || 
-               dialCode.contains(searchTerm) ||
-               isoCode.name.toLowerCase().contains(searchTerm);
+        return countryName.contains(searchTerm) ||
+            dialCode.contains(searchTerm) ||
+            isoCode.name.toLowerCase().contains(searchTerm);
       }).toList();
     }
   }
@@ -764,7 +771,8 @@ class FancySearchBar extends StatefulWidget {
   State<FancySearchBar> createState() => _FancySearchBarState();
 }
 
-class _FancySearchBarState extends State<FancySearchBar> with SingleTickerProviderStateMixin {
+class _FancySearchBarState extends State<FancySearchBar>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   bool _showClear = false;
@@ -805,7 +813,7 @@ class _FancySearchBarState extends State<FancySearchBar> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Material(
       borderRadius: BorderRadius.circular(12),
       child: Container(
@@ -826,16 +834,15 @@ class _FancySearchBarState extends State<FancySearchBar> with SingleTickerProvid
               child: TextField(
                 controller: widget.controller,
                 focusNode: widget.focusNode,
-                
                 autofocus: widget.autofocus,
                 style: widget.textStyle ?? theme.textTheme.bodyLarge,
-                decoration: (widget.decoration ?? const InputDecoration())
-                    .copyWith(
-                      border: InputBorder.none,
-                      fillColor: Color(0xEEEEEEEE),
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                    ),
+                decoration:
+                    (widget.decoration ?? const InputDecoration()).copyWith(
+                  border: InputBorder.none,
+                  fillColor: Color(0xEEEEEEEE),
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
                 onChanged: widget.onChanged,
               ),
             ),

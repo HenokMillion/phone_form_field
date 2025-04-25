@@ -87,13 +87,15 @@ import 'phone_field_localization_impl_zh.dart';
 /// property.
 abstract class PhoneFieldLocalizationImpl {
   PhoneFieldLocalizationImpl(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
   static PhoneFieldLocalizationImpl? of(BuildContext context) {
     return Localizations.of<PhoneFieldLocalizationImpl>(
-        context, PhoneFieldLocalizationImpl);
+      context,
+      PhoneFieldLocalizationImpl,
+    );
   }
 
   static const LocalizationsDelegate<PhoneFieldLocalizationImpl> delegate =
@@ -111,11 +113,11 @@ abstract class PhoneFieldLocalizationImpl {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -144,7 +146,7 @@ abstract class PhoneFieldLocalizationImpl {
     Locale('uk'),
     Locale('uz'),
     Locale('vi'),
-    Locale('zh')
+    Locale('zh'),
   ];
 
   /// No description provided for @invalidPhoneNumber.
@@ -203,38 +205,39 @@ class _PhoneFieldLocalizationImplDelegate
   @override
   Future<PhoneFieldLocalizationImpl> load(Locale locale) {
     return SynchronousFuture<PhoneFieldLocalizationImpl>(
-        lookupPhoneFieldLocalizationImpl(locale));
+      lookupPhoneFieldLocalizationImpl(locale),
+    );
   }
 
   @override
   bool isSupported(Locale locale) => <String>[
-        'ar',
-        'ca',
-        'ckb',
-        'cs',
-        'de',
-        'el',
-        'en',
-        'es',
-        'fa',
-        'fr',
-        'he',
-        'hi',
-        'hu',
-        'it',
-        'ku',
-        'nb',
-        'nl',
-        'pt',
-        'ru',
-        'sk',
-        'sv',
-        'tr',
-        'uk',
-        'uz',
-        'vi',
-        'zh'
-      ].contains(locale.languageCode);
+    'ar',
+    'ca',
+    'ckb',
+    'cs',
+    'de',
+    'el',
+    'en',
+    'es',
+    'fa',
+    'fr',
+    'he',
+    'hi',
+    'hu',
+    'it',
+    'ku',
+    'nb',
+    'nl',
+    'pt',
+    'ru',
+    'sk',
+    'sv',
+    'tr',
+    'uk',
+    'uz',
+    'vi',
+    'zh',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_PhoneFieldLocalizationImplDelegate old) => false;
@@ -298,8 +301,9 @@ PhoneFieldLocalizationImpl lookupPhoneFieldLocalizationImpl(Locale locale) {
   }
 
   throw FlutterError(
-      'PhoneFieldLocalizationImpl.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'PhoneFieldLocalizationImpl.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }
